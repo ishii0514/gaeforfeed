@@ -1,0 +1,42 @@
+<html>
+<head>
+  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'/>
+  <title>GAE/P+jQueryでJSONをAJAXしてみる</title>
+  <!--<script src="http://code.jquery.com/jquery-latest.js"></script> -->
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+  <script>
+$(function() {
+
+  $("#btn").click(function() {
+    // JSONレスポンスを返すURL
+    url = "http://localhost:8081/OutputJSON";
+    // リクエストパラメータ作成
+    req = {
+      "title":$("#title").val(),
+      "link":$("#link").val(),
+      "callback":"?" /* 他ドメインにリクエストする場合には必要 */
+    };
+    // AJAX
+    $.getJSON(url, req, callback);
+  });
+  
+  /* コールバック関数 */
+  var callback = function(json){
+      message = '<a href="' + json.link + '">' + json.title + '</a>';
+      $('#res').html(message);
+  };
+});
+  </script>
+</head>
+<body>
+  <p>リクエスト</p>
+  <input type="text" id="title" value="俺の砂箱" />
+
+  <input type="text" id="link" value="http://sunabako.sblo.jp" />
+
+  <button id="btn">送信</button>
+  <p>レスポンス</p>
+  <div id="res"></div>
+</body>
+</html>
