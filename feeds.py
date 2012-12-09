@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext.webapp import template
@@ -10,9 +11,14 @@ consumer_key = '3MVG98XJQQAccJQcNdyHKdTAAktiZJU3MEJAH3gCfQqOl9xoAc_TUky1UMRDzxLv
 consumer_secret    ='1542233998658503107'
 redirect_uri = 'https://feedtest0.appspot.com/callback'
 
+#GAE
+#initialpage = 'http://feedtest0.appspot.com/tile'
+#local
+initialpage = 'http://localhost:8081/tile'
 
 
-class MainPage(webapp.RequestHandler):
+
+class JsonAjax(webapp.RequestHandler):
     def get(self):
         template_values = {}
         path = os.path.join(os.path.dirname(__file__), 'json_ajax.html')
@@ -24,21 +30,20 @@ class OutputJSON(webapp.RequestHandler):
         link = self.request.get('link').encode('UTF-8')
         res = '{"title":"%s", "link":"%s"}' % (title, link)
         self.response.out.write(cgi.escape(unicode(res, 'UTF-8')))
-
-class Block(webapp.RequestHandler):
-    def get(self):
-        template_values = {}
-        path = os.path.join(os.path.dirname(__file__), 'json_block.html')
-        self.response.out.write(template.render(path, template_values))
         
 class Demo(webapp.RequestHandler):
     def get(self):
-        template_values = {}
+        template_values = {'name' : 'yosuke'}
         path = os.path.join(os.path.dirname(__file__), 'demo.html')
+        self.response.out.write(template.render(path, template_values))
+
+class Tile(webapp.RequestHandler):
+    def get(self):
+        template_values = {'name' : 'tile demo'}
+        path = os.path.join(os.path.dirname(__file__), 'tile.html')
         self.response.out.write(template.render(path, template_values))
                     
 class NextPage(webapp.RequestHandler):
-    
     def get(self):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.out.write('NextPage!')
@@ -57,12 +62,13 @@ class SignIn(webapp.RequestHandler):
             
 class CallBack(webapp.RequestHandler):
     def get(self):
-        pass
-
-application = webapp.WSGIApplication([('/', MainPage),
+        self.redirect(initialpage)
+        
+application = webapp.WSGIApplication([('/', SignIn),
+                                      ('/ajaxtest',JsonAjax),
                                       ('/OutputJSON',OutputJSON),
-                                      ('/block', Block),
                                       ('/demo', Demo),
+                                      ('/tile', Tile),
                                       ('/next', NextPage),
                                       ('/signin', SignIn),
                                       ('/callback', CallBack)], debug=True)
