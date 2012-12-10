@@ -19,7 +19,8 @@ redirect_uri = 'https://feedtest0.appspot.com/callback'
 #local
 initialpage = 'http://localhost:8081/tile'
 
-
+#
+base_path = '/services/data/v26.0'
 
 class JsonAjax(webapp2.RequestHandler):
     def get(self):
@@ -42,16 +43,40 @@ class Demo(webapp2.RequestHandler):
 
 class Tile(webapp2.RequestHandler):
     def get(self):
-        id = self.request.get('id').encode('UTF-8')
+        url = self.request.get('id').encode('UTF-8')
+        access_token = self.request.get('access_token').encode('UTF-8')
         instance_url = self.request.get('instance_url').encode('UTF-8')
         
+        #userinfo = self.getUserInfo(url, access_token)
+        
+        res = self.getMethod(access_token,instance_url,'/chatter/feeds/news/me/feed-items',{})
+
+        
         self.response.headers['Content-Type'] = 'text/plain'
-        self.response.out.write('tile id:%s,instance_url:%s' % (id,instance_url))
+        self.response.out.write('currentpage:%s,type:%s' % (res['currentPageUrl'],res['items'][0]['type']))
         
         #template_values = {'name' : 'tile demo'}
         #path = os.path.join(os.path.dirname(__file__), 'tile.html')
         #self.response.out.write(template.render(path, template_values))
-                    
+        
+    def getUserInfo(self,url,access_token):
+        request = urllib2.Request(url)
+        request.add_header('Authorization', 'OAuth ' + access_token)
+        response = urllib2.urlopen(request)
+        result = response.read()
+        return json.loads(result.decode())
+    
+    def getMethod(self,access_token,instance_url,resouce,params):
+            url = instance_url + base_path + resouce
+            if (len(params) > 0):
+                paramStr = urllib.urlencode(params)
+                url = url + '?' + paramStr
+            request = urllib2.Request(url)
+            request.add_header('Authorization', 'OAuth ' + access_token)
+            response = urllib2.urlopen(request)
+            result = response.read()
+            return json.loads(result.decode())
+    
 class NextPage(webapp2.RequestHandler):
     def get(self):
         self.response.headers['Content-Type'] = 'text/plain'
