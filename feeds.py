@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-#from google.appengine.ext import webapp
-#from google.appengine.ext.webapp.util import run_wsgi_app
+
 import webapp2
 from google.appengine.ext.webapp import template
 import urllib
@@ -49,7 +48,7 @@ class Tile(webapp2.RequestHandler):
         
         #userinfo = self.getUserInfo(url, access_token)
         
-        res = self.getMethod(access_token,instance_url,'/chatter/feeds/news/me/feed-items',{})
+        res = getMethod(access_token,instance_url,'/chatter/feeds/news/me/feed-items',{})
 
         
         self.response.headers['Content-Type'] = 'text/plain'
@@ -65,17 +64,6 @@ class Tile(webapp2.RequestHandler):
         response = urllib2.urlopen(request)
         result = response.read()
         return json.loads(result.decode())
-    
-    def getMethod(self,access_token,instance_url,resouce,params):
-            url = instance_url + base_path + resouce
-            if (len(params) > 0):
-                paramStr = urllib.urlencode(params)
-                url = url + '?' + paramStr
-            request = urllib2.Request(url)
-            request.add_header('Authorization', 'OAuth ' + access_token)
-            response = urllib2.urlopen(request)
-            result = response.read()
-            return json.loads(result.decode())
     
 class NextPage(webapp2.RequestHandler):
     def get(self):
@@ -138,10 +126,14 @@ app = webapp2.WSGIApplication([('/', SignIn),
                                       ('/signin', SignIn),
                                       ('/callback', CallBack)], debug=True)
 
-'''
-def main():
-    run_wsgi_app(application)
 
-if __name__ == "__main__":
-    main()
-'''
+def getMethod(access_token,instance_url,resouce,params):
+    url = instance_url + base_path + resouce
+    if (len(params) > 0):
+        paramStr = urllib.urlencode(params)
+        url = url + '?' + paramStr
+    request = urllib2.Request(url)
+    request.add_header('Authorization', 'OAuth ' + access_token)
+    response = urllib2.urlopen(request)
+    result = response.read()
+    return json.loads(result.decode())
